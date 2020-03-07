@@ -1,6 +1,8 @@
+@ECHO off
+
 SET mypath=%~dp0
 cd %mypath%
 
-%mypath%Build.bat && cls && %mypath%Compile.bat
+%mypath%Compile.bat && cls && %mypath%Execute.bat
 
 EXIT

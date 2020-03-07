@@ -1,0 +1,3 @@
+.\src\*.class
+.\src\exceptions\*.class
+.\src\logger\*.class
