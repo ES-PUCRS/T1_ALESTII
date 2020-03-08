@@ -1,7 +1,7 @@
 ::@ECHO OFF
 :: Define path variables
-SET importPath=%~dp0\paths
-SET mypath=%importPath%..\..\src
+SET importPath=%~dp0paths
+SET mypath=%importPath%\..\..\src
 cd %mypath%
 
 :: Grab the paths of .java files found on src
