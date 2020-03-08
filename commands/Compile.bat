@@ -1,8 +1,7 @@
-@ECHO off
-
+::@ECHO OFF
 :: Define path variables
 SET importPath=%~dp0\paths
-SET mypath=%~dp0..\src
+SET mypath=%importPath%..\..\src
 cd %mypath%
 
 :: Grab the paths of .java files found on src
@@ -17,6 +16,6 @@ EXIT
 
 
 :: Methods
-:: Called on for
+:: Called on loop to concatenate all the java path files
 :concat
 set javaFiles=%javaFiles% %1
