@@ -63,7 +63,7 @@
 				CALL :grabMainClass %%i %%j
 			)
 			if NOT defined appVersion (
-				CALL :grabappVersion %%i %%j
+				CALL :grabAppVersion %%i %%j
 			)
 		)	
 	)
@@ -85,9 +85,9 @@ EXIT /B 1
 :: Called on manifest to generate the manifest or update the file
 :generateManifest
 	if NOT ["%ERRORLEVEL%"]==["0"] EXIT /B 1
-
-	echo Manifest-Version: %appVersion%>%root%\manifest.txt
-	echo Main-Class: %mainClass%>>%root%\manifest.txt
+	cd %root%
+	echo Manifest-Version: %appVersion% >%root%\manifest.txt
+	echo Main-Class: %mainClass% >>%root%\manifest.txt
 	GOTO :generateJar
 
 :: Search through the project by the main class
@@ -111,7 +111,7 @@ EXIT /B 1
 	SET mainClass=%mainClass:\=.%
 
 	cd %binPath%
-	GOTO :generateManifest
+	GOTO :EOF
 
 :: Called on manifest loop to grab the manifest mainClass
 :grabMainClass
@@ -122,7 +122,7 @@ EXIT /B 1
 	GOTO :EOF
 
 :: Called on manifest loop to grab the manifest appVersion
-:grabappVersion
+:grabAppVersion
 	SET appVersion=%2
 	SET /A appVersion+=1
 	GOTO :EOF
