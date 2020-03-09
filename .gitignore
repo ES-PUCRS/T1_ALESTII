@@ -4,6 +4,7 @@
 # Compiled class file
 *.class
 *.txt
+*.h
 
 # Log file
 *.log

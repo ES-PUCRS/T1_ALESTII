@@ -3,66 +3,123 @@
 	SET commandPath=%~dp0
 	SET root=%commandPath%..
 	SET importPath=%commandPath%\paths
-	SET binpath=%commandPath%..\bin
-
-	cd %binpath%
+	SET binPath=%root%\bin
+	cd %binPath%
 
 	:: Open a new terminal pad and run the compiler bat.
 	:: This command will make the batch wait until compile finish.
 	echo Compiling...
-	start /wait cmd /k call %commandPath%\Compile.bat
+	start /wait cmd /k CALL %commandPath%\Compile.bat
 	if NOT ["%ERRORLEVEL%"]==["0"] (
 		ECHO Fail compiling, the program could not be deployed.
 		PAUSE
 		EXIT
 	)
 
-	goto :findVersion
+	echo Finding compiled files...
+	start /wait cmd /k CALL %importPath%\build_router.bat
+	
+	GOTO :manifest
 :: END
 
 
 
 :: Create manifest and jar file 
 :generateJar
-	echo Manifest-Version: %version% >%root%\manifest.txt
-	echo Main-Class: src.app >>%root%\manifest.txt
+	:: Grab the paths of .class files found on bin
+	for /f %%i in (%importPath%\_class.txt) DO CALL :concat %%i
 
-	:: Grab the paths of .java files found on src
-	for /f %%i in (%importPath%\_class.txt) DO call :concat %%i
-
+	:: Run over manifest and print file version created and main class on terminal
 	echo Manifest.txt
 	for /f "tokens=1,2 delims=" %%i in (%root%\manifest.txt) DO echo %%i %%j
-	echo Jar
+
 	:: Generate jarfile
+	echo Jar
 	jar cvfm app.jar %root%\manifest.txt %classFiles%
 
 
 	echo !---- Running app
 	:: Run jar file
-	java -jar App.jar
-
+	start cmd /k CALL java -jar App.jar
 	PAUSE
 	EXIT
 
 
+
 :: Define which is the program version
-:findVersion
-	if exist (dir %root%\manifest.txt)
+:manifest
+	:: If the manifest already exist, it will catch the version and the mainClass
+	if exist "%root%\manifest.txt" (
 		for /f "tokens=1,2 delims=" %%i in (%root%\manifest.txt) DO (
-				call :grabVersion %%i %%j
+				if defined version (
+					CALL :grabMainClass %%i %%j
+				)
+				if NOT defined version (
+					CALL :grabVersion %%i %%j
+				)
 			)
+		CALL :generateManifest
+	)
+
+	:: If the manifest doesn't exist, this will define de version and ask the mainClass name
+	if NOT exist "%root%\manifest.txt" (
+		ECHO Manifest not found. Generating a new one...
 		SET version=1
-	goto :generateJar
+		CALL :findMainClass
+		CALL :generateManifest
+	)
+
+ECHO ERR: Unespected error
+PAUSE
+EXIT /B 1
 
 
-	:: Called on loop to grab the manifest version
-	:grabVersion
-	set version=%2
-	set /A version+=1
-	goto :generateJar
+:: CALLed on manifest to generate the manifest or update the file
+:generateManifest
+	echo Manifest-Version: %version% >%root%\manifest.txt
+	echo Main-Class: %mainClass% >>%root%\manifest.txt
+	GOTO :generateJar
 
+:findMainClass
+	for /F "delims=" %%a in (
+		'findstr /S /I /M /C:"public static void main" *.*'
+	) do (
+		SET mainClass=%%a
+	)
+
+	ECHO mainClass = %mainClass%
+	PAUSE
+
+	if NOT defined mainClass (
+		ECHO ERR: Main Class not found on project.
+		ECHO Create one and try again.
+			PAUSE
+		EXIT /B 1
+	)
+
+	SET mainClass=%mainClass:.java=%
+	SET mainClass=%mainClass:\=.%
+	GOTO :EOF
+
+:: Called on manifest loop to grab the manifest mainClass
+:grabMainClass
+	SET mainClass=%2
+	if NOT defined mainClass (
+		call :findMainClass
+	)
+	GOTO :EOF
+
+:: Called on manifest loop to grab the manifest version
+:grabVersion
+	SET version=%2
+	if NOT defined version (
+		SET version=0
+	)
+	SET /A version+=1
+	GOTO :EOF
 
 
 :: Called on loop to concatenate all the files path
 :concat
-	set classFiles=%classFiles% %1
+	SET classFiles=%classFiles% %1
+	GOTO :EOF

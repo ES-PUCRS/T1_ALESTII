@@ -1,2 +1,2 @@
-Manifest-Version: 0
-Main-Class: src.app 
+Manifest-Version: 7 
+Main-Class:  

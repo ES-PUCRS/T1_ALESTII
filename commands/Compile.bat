@@ -1,14 +1,23 @@
-::@ECHO OFF
+:: @ECHO OFF
 :: Define path variables
-SET importPath=%~dp0paths
-SET mypath=%importPath%\..\..\src
-cd %mypath%
+SET pathsFolder=%~dp0paths
+SET srcPath=%pathsFolder%\..\..\src
+SET binPath=%srcPath%\..\bin
+cd %srcPath%
+
+start /wait cmd /k call %pathsFolder%\project_router.bat
 
 :: Grab the paths of .java files found on src
-for /f %%i in (%importPath%\_java.txt) DO call :concat %%i
+for /f %%i in (%pathsFolder%\_java.txt) DO call :concat %%i
+
+if NOT exist %binPath% MKDIR %binPath%
+
+if exist dir %binPath%\src (
+	@RD /s /q %binPath%\src
+)
 
 :: Call java Compiler, define bin path and .java routes
-javac -cp %mypath%\app.java -d %mypath%\..\bin %javaFiles%
+javac -cp %srcPath%\app.java -d %binPath% %javaFiles%
 
 :: If an error has been fouhd, pause batch
 if NOT ["%ERRORLEVEL%"]==["0"] PAUSE
