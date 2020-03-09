@@ -6,7 +6,7 @@
 	SET binPath=%root%\bin
 	cd %binPath%
 
-	:: Open a new terminal pad and run the compiler bat.
+	:: Open a new terminal pad and run the .java finder bat.
 	:: This command will make the batch wait until compile finish.
 	echo Compiling...
 	start /wait cmd /k CALL %commandPath%\Compile.bat
@@ -15,30 +15,36 @@
 		PAUSE
 		EXIT
 	)
-
+	:: Open a new terminal pad and run the .class finder bat.
 	echo Finding compiled files...
 	start /wait cmd /k CALL %importPath%\build_router.bat
 	
 	GOTO :manifest
+
+	ECHO GOT STRIKE
+	PAUSE
+		if NOT ["%ERRORLEVEL%"]==["0"] EXIT /B 1
 :: END
 
 
 
 :: Create manifest and jar file 
 :generateJar
+	if NOT ["%ERRORLEVEL%"]==["0"] EXIT /B 1
+
 	:: Grab the paths of .class files found on bin
 	for /f %%i in (%importPath%\_class.txt) DO CALL :concat %%i
 
-	:: Run over manifest and print file version created and main class on terminal
-	echo Manifest.txt
+	:: Run over manifest and print file appVersion created and main class on terminal
+	echo Reading Manifest
 	for /f "tokens=1,2 delims=" %%i in (%root%\manifest.txt) DO echo %%i %%j
 
 	:: Generate jarfile
-	echo Jar
+	echo Generating JAR package
 	jar cvfm app.jar %root%\manifest.txt %classFiles%
 
 
-	echo !---- Running app
+	echo !---- Running app ----!
 	:: Run jar file
 	start cmd /k CALL java -jar App.jar
 	PAUSE
@@ -46,52 +52,56 @@
 
 
 
-:: Define which is the program version
+:: Define which is the program appVersion
 :manifest
-	:: If the manifest already exist, it will catch the version and the mainClass
+	if NOT ["%ERRORLEVEL%"]==["0"]  EXIT /B 1
+
+	:: If the manifest already exist, it will catch the appVersion and the mainClass
 	if exist "%root%\manifest.txt" (
 		for /f "tokens=1,2 delims=" %%i in (%root%\manifest.txt) DO (
-				if defined version (
-					CALL :grabMainClass %%i %%j
-				)
-				if NOT defined version (
-					CALL :grabVersion %%i %%j
-				)
+			if defined appVersion (
+				CALL :grabMainClass %%i %%j
 			)
-		CALL :generateManifest
+			if NOT defined appVersion (
+				CALL :grabappVersion %%i %%j
+			)
+		)	
 	)
 
-	:: If the manifest doesn't exist, this will define de version and ask the mainClass name
+	:: If the manifest doesn't exist, this will define de appVersion and ask the mainClass name
 	if NOT exist "%root%\manifest.txt" (
 		ECHO Manifest not found. Generating a new one...
-		SET version=1
+		SET appVersion=1
 		CALL :findMainClass
-		CALL :generateManifest
 	)
+
+	GOTO :generateManifest
 
 ECHO ERR: Unespected error
 PAUSE
 EXIT /B 1
 
 
-:: CALLed on manifest to generate the manifest or update the file
+:: Called on manifest to generate the manifest or update the file
 :generateManifest
-	echo Manifest-Version: %version% >%root%\manifest.txt
-	echo Main-Class: %mainClass% >>%root%\manifest.txt
+	if NOT ["%ERRORLEVEL%"]==["0"] EXIT /B 1
+
+	echo Manifest-Version: %appVersion%>%root%\manifest.txt
+	echo Main-Class: %mainClass%>>%root%\manifest.txt
 	GOTO :generateJar
 
+:: Search through the project by the main class
 :findMainClass
+	cd %root%
+
 	for /F "delims=" %%a in (
 		'findstr /S /I /M /C:"public static void main" *.*'
 	) do (
 		SET mainClass=%%a
 	)
 
-	ECHO mainClass = %mainClass%
-	PAUSE
-
 	if NOT defined mainClass (
-		ECHO ERR: Main Class not found on project.
+		ECHO ERR: Main-Class not found on project.
 		ECHO Create one and try again.
 			PAUSE
 		EXIT /B 1
@@ -99,7 +109,9 @@ EXIT /B 1
 
 	SET mainClass=%mainClass:.java=%
 	SET mainClass=%mainClass:\=.%
-	GOTO :EOF
+
+	cd %binPath%
+	GOTO :generateManifest
 
 :: Called on manifest loop to grab the manifest mainClass
 :grabMainClass
@@ -109,17 +121,16 @@ EXIT /B 1
 	)
 	GOTO :EOF
 
-:: Called on manifest loop to grab the manifest version
-:grabVersion
-	SET version=%2
-	if NOT defined version (
-		SET version=0
-	)
-	SET /A version+=1
+:: Called on manifest loop to grab the manifest appVersion
+:grabappVersion
+	SET appVersion=%2
+	SET /A appVersion+=1
 	GOTO :EOF
 
 
 :: Called on loop to concatenate all the files path
 :concat
-	SET classFiles=%classFiles% %1
+	SET stringfy=%1
+	SET stringfy=%stringfy:*src=.\src%
+	SET classFiles=%classFiles% %stringfy%
 	GOTO :EOF

@@ -1,2 +1,2 @@
-Manifest-Version: 7 
-Main-Class:  
+Manifest-Version: 
+Main-Class: src.main.java.project.app

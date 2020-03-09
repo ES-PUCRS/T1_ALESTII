@@ -1,6 +1,3 @@
-C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\bin\src\*.class
-C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\bin\src\exceptions\*.class
-C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\bin\src\logger\*.class
 C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\bin\src\main\java\project\*.class
 C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\bin\src\main\java\project\exceptions\*.class
 C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\bin\src\main\java\project\logger\*.class
