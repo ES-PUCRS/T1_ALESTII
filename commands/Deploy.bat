@@ -31,7 +31,7 @@
 :: Create manifest and jar file 
 :generateJar
 	if NOT ["%ERRORLEVEL%"]==["0"] EXIT /B 1
-
+	cd %binPath%
 	:: Grab the paths of .class files found on bin
 	for /f %%i in (%importPath%\_class.txt) DO CALL :concat %%i
 
