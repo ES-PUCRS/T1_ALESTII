@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.nio.file.Files;
 import java.io.FileWriter;
 import java.util.Scanner;
 import java.lang.String;
@@ -15,8 +16,11 @@ import java.io.File;
 import java.time.format.DateTimeFormatter;  
 import java.time.LocalDateTime;
 
+import src.main.java.project.app;
+
 
 public class Writer {
+	private static Boolean printOnTerminal = app.printOnTerminal;
 	private static PrintWriter logDataWriter;
 	private static Path logDateTime;
 	private static Writer instance;
@@ -27,15 +31,21 @@ public class Writer {
 		DateTimeFormatter dt = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH'H'.mm'M'.ss'S'");
 		time = DateTimeFormatter.ofPattern("HH:mm:ss:SSS' - '"); 
         
-        String filePath = Paths.get("").toAbsolutePath().toString();
+        String folderPath = Paths.get("").toAbsolutePath().toString();
+        folderPath += "\\SavedLogs\\";
         LocalDateTime now = LocalDateTime.now(); 
-        filePath += "\\SavedLogs\\" + "LoggerRuntime_" + dt.format(now) + ".txt";   
+        String filePath = folderPath + "LoggerRuntime_" + dt.format(now) + ".txt";   
         
-        logDateTime =  Paths.get(filePath);
+        logDateTime = Paths.get(filePath);
 		String welcome = "";
 
 		try{
+
 			File logFile = new File(logDateTime.toString());
+			if(Files.notExists(Paths.get(folderPath))){
+				File folder = new File(folderPath);
+				folder.mkdir();
+			}
 
 			if(!logFile.exists()){
             	logFile.createNewFile();
@@ -64,14 +74,15 @@ public class Writer {
 	        logDataWriter.close();
         
         }catch(IOException x){
-             System.err.format("Erro de E/S: %s%n", x);
+        	x.printStackTrace();
+            System.err.format("Erro de E/S: %s%n", x);
         }
 		
 	}
 
 	public static Writer getInstance(){
-		if(this.instance == null)
-			this.instance = new Writer();
+		if(instance == null)
+			instance = new Writer();
 		return instance;
 	}
 
