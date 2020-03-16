@@ -21,7 +21,6 @@
 		ECHO Cleaning existing routes of the command %%l
 		if exist "%exportPath%Command_%%l.txt" del /f "%exportPath%Command_%%l.txt"
 		ECHO %%l
-		PAUSE
 		call :searchThrough %%l
 	)
 	EXIT
