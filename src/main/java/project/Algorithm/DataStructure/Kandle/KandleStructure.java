@@ -40,6 +40,9 @@ import java.lang.NullPointerException;
 
 public class KandleStructure<E extends Comparable<E>>{
 
+	private int PACK_N_KANDLES = 4;
+
+
 	private static class Kandle<E extends Comparable> implements Comparable<Kandle>{
 		Kandle<E> next;
         Kandle<E> prev;
@@ -87,10 +90,10 @@ public class KandleStructure<E extends Comparable<E>>{
         	return "{ [" + smallest.toString() + "] kn [" + biggest.toString() + "] }";
         }
 
-        public String smallest(){
+        public String smallestToString(){
         	return " [" + smallest.toString() + "] ";
         }
-		public String biggest(){
+		public String biggestToString(){
         	return " [" + biggest.toString() + "] ";
         }
 	}
@@ -114,9 +117,16 @@ public class KandleStructure<E extends Comparable<E>>{
             this.next = next;
         }
 
+        public Kandle smallest(){
+        	Kandle k = smallest;
+        	while(k instanceof KandlePackage)
+        		k = (KandlePackage) k.smallest;
+        	return k;
+        }
+
         @Override
         public String toString(){
-        	return "{" + smallest.smallest() + "pk" + biggest.biggest() +"}";
+        	return "{" + smallest.smallestToString() + "pk" + biggest.biggestToString() +"}";
         }
 	}
 
@@ -140,6 +150,32 @@ public class KandleStructure<E extends Comparable<E>>{
 	     * Pointer to last object on the list.
 	     */
 	    private Kandle<E> last;
+
+
+    /**
+     ** Inicial Kandle Pointer
+     * Pointer to first Kandle capable of being packed.
+     */
+    private Kandle<E> ikp;
+
+    /**
+     ** Final Kandle Pointer
+     * Pointer to last Kandle capable of being packed (fourth).
+     */
+    private Kandle<E> fkp;
+
+    /**
+     ** Inicial Package Pointer
+     * Pointer to last package capable of being packed (fourth).
+     */
+    private Kandle<E> ipp;
+
+    /**
+     ** Final Package Pointer
+     * Pointer to last package capable of being packed (fourth).
+     */
+    private Kandle<E> fpp;
+
 
 
     /**
@@ -178,30 +214,57 @@ public class KandleStructure<E extends Comparable<E>>{
     	if( k == null ){
     		k = new Kandle(s, b);
     		
-    		if(first == null)
-    			first = last = k; // = ikp = fkp = k;
+    		if(first == null){
+    			first = last = ikp = fkp = k;
+    			countKandles++;
+    			return k;
+    		}
     		else
     			linkAfter(k, last);
     		
+    		
 
-            if(countKandles >= 4)
-                //TODO packKandles();
+            if(countKandles >= PACK_N_KANDLES)
+                packKandles();
 
-    		last = k;
+    		last = fkp = k;
             countKandles++;
-    		return last;
+    		return k;
     	}
-			
-    		k = new Kandle(s, b);
-			linkAfter(k, last);
-			last = k;
-            countKandles++;
-    	return last;
+
+    	return insert(s, b, k.next);
     }
 
-    private void linkAfter(Kandle nk, Kandle k){
+	/**
+	 * Method to help handle references
+     * @param <Kandle> nk - new Kandle to be attached before k
+     * @param <Kandle> k - Kandle reference to attach
+     */
+    private void linkBefore(Kandle nk, Kandle k){
         if(nk == null || k == null)
-            throw new NullPointerException("Can not link after on a null object");
+            throw new NullPointerException("Can not link before on a null object");
+        if (nk.next != null) nk.next.prev = null;
+        if (k.prev != null) k.prev.next = null;
+        nk.next = k;
+        k.prev = nk;
+    }
+
+	/**
+	 * Method to help handle references
+     * @param <Kandle> nk - new Kandle to be attached after k
+     * @param <Kandle> k - Kandle reference to attach
+     */
+    private void linkAfter(Kandle nk, Kandle k){
+        if(nk == null || k == null){
+    		if(nk instanceof KandlePackage){
+    			KandlePackage n = (KandlePackage) nk;
+    			if(first == null || first.compareTo(n.smallest()) == 0 ) {
+	    			first = nk;
+	    			return;
+	    		}
+    		} 
+        	throw new NullPointerException("Can not link after on a null object");
+        }
         if (nk.prev != null) nk.prev.next = null;
         if (k.next != null) k.next.prev = null;
         nk.prev = k;
@@ -209,16 +272,25 @@ public class KandleStructure<E extends Comparable<E>>{
     }
 
 
-    public void pack(){
-    	Kandle k = new KandlePackage(first, last);
-    	first = last = k;
+    public void packKandles(){
+    	Kandle k = new KandlePackage(ikp, fkp);
+    	k.prev = ikp.prev;
+    	ikp.prev = k;
+    	k.next = fkp.next;
+    	fkp.next = k;
+
+    	if(k.prev != null) k.prev.next = k;
+    	if(k.next != null) k.next.prev = k;
+
+    	if(first.compareTo(ikp) == 0)
+    		first = k;
+    	if(last.compareTo(fkp) == 0)
+    		last = k;
+
+    	countKandles -= 4;
+    	countPackages ++;
     }
 
-	public void forcePack(){
-    	Kandle k = new KandlePackage(first.next, last);
-    	linkAfter(k, first);
-    	last = k;
-    }
 
     @Override
     public String toString(){
