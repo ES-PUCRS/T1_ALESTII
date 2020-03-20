@@ -35,15 +35,23 @@
  * @param <E> the type of elements held in this collection
  */
 
+import src.main.java.project.Algorithm.Datastructure.ReferenceList.LinkedList;
+import src.main.java.project.logger.Logger;
+import src.main.resources.Messages;
 
 import java.lang.NullPointerException;
+import java.util.ArrayList;
 
 public class KandleStructure<E extends Comparable<E>>{
 
-	private int PACK_N_KANDLES = 4;
-
+	//Number of Kandles that would be hold on a package
+	private int PACKAGE_SIZING = 4;
 
 	private static class Kandle<E extends Comparable> implements Comparable<Kandle>{
+        private static int n = 1; //Kandle Kn*
+        final int v = n;
+
+        final int level = 0;
 		Kandle<E> next;
         Kandle<E> prev;
         E smallest;
@@ -54,12 +62,18 @@ public class KandleStructure<E extends Comparable<E>>{
             this.smallest = smallest;
             this.biggest = biggest;
             this.prev = this.next = null;
+            n++;
         }
         Kandle(Kandle<E> prev, E smallest, E biggest, Kandle<E> next) {
             this.smallest = smallest;
             this.biggest = biggest;
             this.prev = prev;
             this.next = next;
+            n++;
+        }
+
+        public int getLevel(){
+            return level;
         }
 
         /*
@@ -87,7 +101,7 @@ public class KandleStructure<E extends Comparable<E>>{
 	
         @Override
         public String toString(){
-        	return "{ [" + smallest.toString() + "] kn [" + biggest.toString() + "] }";
+        	return "{ [" + smallest.toString() + "] K" + v +" [" + biggest.toString() + "] }";
         }
 
         public String smallestToString(){
@@ -103,16 +117,19 @@ public class KandleStructure<E extends Comparable<E>>{
 		Kandle biggest;
 		Kandle prev;
 		Kandle next;
+        int level;
 
-		KandlePackage(Kandle smallest, Kandle biggest){
+		KandlePackage(Kandle smallest, Kandle biggest, int level){
 			super();
             this.smallest = smallest;
             this.biggest = biggest;
+            this.level = level;
 		}
-        KandlePackage(Kandle prev, Kandle smallest, Kandle biggest, Kandle next) {
+        KandlePackage(Kandle prev, Kandle smallest, Kandle biggest, Kandle next, int level) {
             super();
             this.smallest = smallest;
             this.biggest = biggest;
+            this.level = level;
             this.prev = prev;
             this.next = next;
         }
@@ -124,64 +141,51 @@ public class KandleStructure<E extends Comparable<E>>{
         	return k;
         }
 
+        public Kandle biggest(){
+            Kandle k = biggest;
+            while(k instanceof KandlePackage)
+                k = (KandlePackage) k.biggest;
+            return k;
+        }
+
         @Override
         public String toString(){
-        	return "{" + smallest.smallestToString() + "pk" + biggest.biggestToString() +"}";
+            Kandle small = this.smallest();
+            Kandle big = this.biggest();
+
+        	return "{" + small.smallestToString() + "P"+level+ big.biggestToString() +"}";
         }
 	}
 
 
-		/**
-		 * Count how many packages the list is carrying
-		 */
-		private int countPackages = 0;
-		
-		/**
-		 * Count how many Kandles the list is carrying
-		 */
-		private int countKandles = 0;
-	    
 	    /**
 	     * Pointer to first object on the list.
 	     */
-	    private Kandle<E> first;
+	    transient Kandle<E> first;
 
 	    /**
 	     * Pointer to last object on the list.
 	     */
-	    private Kandle<E> last;
+	    transient Kandle<E> last;
 
-
-    /**
-     ** Inicial Kandle Pointer
-     * Pointer to first Kandle capable of being packed.
-     */
-    private Kandle<E> ikp;
-
-    /**
-     ** Final Kandle Pointer
-     * Pointer to last Kandle capable of being packed (fourth).
-     */
-    private Kandle<E> fkp;
-
-    /**
-     ** Inicial Package Pointer
-     * Pointer to last package capable of being packed (fourth).
-     */
-    private Kandle<E> ipp;
-
-    /**
-     ** Final Package Pointer
-     * Pointer to last package capable of being packed (fourth).
-     */
-    private Kandle<E> fpp;
-
-
+        /**
+         * Pointer to last object on the list.
+         */
+        transient ArrayList<LinkedList> references;
+        /**
+         * log reference
+         */
+        transient Logger log;
 
     /**
      * Constructs an empty list.
      */
-	public KandleStructure() {}
+	public KandleStructure() {
+        first = last = null;
+        references = new ArrayList(4);
+        references.add(new LinkedList());
+        log = log.getInstance();
+    }
 
 
 
@@ -215,55 +219,149 @@ public class KandleStructure<E extends Comparable<E>>{
     		k = new Kandle(s, b);
     		
     		if(first == null){
-    			first = last = ikp = fkp = k;
-    			countKandles++;
+    			references.get(0).add(first = last = k);
+                log.createNewKandle(s,b,Messages.CREATE_FIRST.toString());
     			return k;
-    		}
-    		else
+    		} else {
+    		    packing();
+
+                references.get(0).add(k);
     			linkAfter(k, last);
-    		
-    		
+                log.createNewKandle(s,b,k.prev.toString(), true);
+            }
 
-            if(countKandles >= PACK_N_KANDLES)
-                packKandles();
-
-    		last = fkp = k;
-            countKandles++;
+    		last = k;
     		return k;
     	}
 
     	return insert(s, b, k.next);
     }
 
-	/**
-	 * Method to help handle references
+
+    private int flag = 0;
+
+    public void packing(){
+        massivePacking(0);
+    }
+    /**
+     * It will running package for evey level capable to pack
+     * @param int level - how tall the packing are
+     */
+    private void massivePacking(int level){
+        //System.out.println("Searching level: "+level+" size: "+linkedReference.size());
+        try {
+            
+            LinkedList linkedReference = references.get(level);
+
+            if(linkedReference.size() > 3){
+                int levelRef = level + 1;
+                Kandle s = (Kandle) linkedReference.getHead();
+                Kandle b = (Kandle) linkedReference.getTail();
+                Kandle k = new KandlePackage(s,b,levelRef);
+            
+                // System.out.println("\nPacking");  
+                // System.out.println("references.get("+level+").size("+references.get(level).size()+")");
+                // System.out.println("levelRef: "+levelRef);
+                // System.out.println("s: " + s.toString());
+                // System.out.println("b: " + b.toString());
+                // System.out.println("k: " + k.toString());
+
+                log.packingKandle(levelRef,
+                                  s.toString(),
+                                  b.toString(),
+                                  k.toString());
+
+               if(references.size() < levelRef){
+                    references.add(levelRef, new LinkedList());
+                }
+                
+                packingReference(k, s, b);
+                references.get(levelRef).add(k);
+                linkedReference.clear();
+
+                // System.out.println("references.get("+level+").size("+references.get(level).size()+")");
+                // System.out.println("references.get("+levelRef+").size("+references.get(levelRef).size()+")\n");
+                massivePacking(levelRef);
+            } 
+            
+            return;
+            
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Exceptioned");
+            references.add(new LinkedList());
+            log.referenceListGrowing(level+1);
+
+                flag++;
+                if(flag == 5)
+                    throw e;
+            
+            /*  Call himself with the new reference
+             *  linkedlist created. Call passing 
+             */// the same level that was called
+            massivePacking(level);
+        }
+    }
+
+
+    /**
+     * Responsible to reorganize references, seeing that
+     * a package holds the Kandles inside and keeps their
+     * references for next and prev as theiy did.
+     * @param <Kandle> pk - PacKage receiving refs
+     * @param <Kandle> ip - Inicial Pointer to range
+     * @param <Kandle> fp - Final Pointer to range
+     * list to search the right sorted spot to
+     * put the new value on;
+     */
+    private void packingReference(Kandle pk, Kandle ip, Kandle fp){
+        if(first.compareTo(ip) == 0)
+            first = pk;
+
+        if(last.compareTo(fp) == 0)
+            last = pk;
+
+    	pk.prev = ip.prev;
+    	ip.prev = pk;
+    	pk.next = fp.next;
+    	fp.next = pk;
+
+    	if(pk.prev != null) pk.prev.next = pk;
+    	if(pk.next != null) pk.next.prev = pk;
+    }
+
+
+
+    /**
+     * Method to help handle references
      * @param <Kandle> nk - new Kandle to be attached before k
      * @param <Kandle> k - Kandle reference to attach
      */
     private void linkBefore(Kandle nk, Kandle k){
         if(nk == null || k == null)
-            throw new NullPointerException("Can not link before on a null object");
+            throw new NullPointerException(Messages.LINK_BEFORE_NULL.toString());
         if (nk.next != null) nk.next.prev = null;
         if (k.prev != null) k.prev.next = null;
         nk.next = k;
         k.prev = nk;
     }
 
-	/**
-	 * Method to help handle references
+
+    /**
+     * Method to help handle references
      * @param <Kandle> nk - new Kandle to be attached after k
      * @param <Kandle> k - Kandle reference to attach
      */
     private void linkAfter(Kandle nk, Kandle k){
         if(nk == null || k == null){
-    		if(nk instanceof KandlePackage){
-    			KandlePackage n = (KandlePackage) nk;
-    			if(first == null || first.compareTo(n.smallest()) == 0 ) {
-	    			first = nk;
-	    			return;
-	    		}
-    		} 
-        	throw new NullPointerException("Can not link after on a null object");
+            if(nk instanceof KandlePackage){
+                KandlePackage n = (KandlePackage) nk;
+                if(first == null || first.compareTo(n.smallest()) == 0 ) {
+                    first = nk;
+                    return;
+                }
+            } 
+            throw new NullPointerException(Messages.LINK_AFTER_NULL.toString());
         }
         if (nk.prev != null) nk.prev.next = null;
         if (k.next != null) k.next.prev = null;
@@ -271,25 +369,6 @@ public class KandleStructure<E extends Comparable<E>>{
         k.next = nk;
     }
 
-
-    public void packKandles(){
-    	Kandle k = new KandlePackage(ikp, fkp);
-    	k.prev = ikp.prev;
-    	ikp.prev = k;
-    	k.next = fkp.next;
-    	fkp.next = k;
-
-    	if(k.prev != null) k.prev.next = k;
-    	if(k.next != null) k.next.prev = k;
-
-    	if(first.compareTo(ikp) == 0)
-    		first = k;
-    	if(last.compareTo(fkp) == 0)
-    		last = k;
-
-    	countKandles -= 4;
-    	countPackages ++;
-    }
 
 
     @Override
@@ -301,5 +380,35 @@ public class KandleStructure<E extends Comparable<E>>{
     	if (k == null)
     		return "";
     	return k.toString() + " " + allToString(k.next);
+    }
+
+
+
+    /*
+     *  DEBUGGING METHODS *!
+     */
+
+    public String getHead(){
+        return first.toString();
+    }
+
+    public String getList(){
+        Kandle k = (Kandle) references.get(0).get(0);
+    //                ArrayList
+    //                     \    LinkedList     Kandle inside 
+    //                      \  inside array   /  Linked List
+    //                       |      |        |
+        return "" + k.level; //+ " " + ((Kandle) references.get(0).get(0).getLevel());
+    }
+
+    public int referenceSize(int i){
+        return references.get(i).size();
+    }
+
+    public void printArrayOn(int i){
+        LinkedList linkedReference = references.get(i);
+        for(int x = 0; x < linkedReference.size(); x++){
+            System.out.println(linkedReference.get(x).toString());
+        }
     }
 }
