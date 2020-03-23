@@ -149,6 +149,9 @@ public void exception(Thread t, Throwable e){
 			   .append(duration.toMillis())
 			   .append(" Milli. ");
 			   
+			   if(printOnTerminal)
+					System.out.println("\n" + str);
+			
 		publishLog(str.toString());
 	}
 
@@ -199,4 +202,18 @@ public void exception(Thread t, Throwable e){
 
 		publishLog(str.toString());
 	}
+	
+	// public void packingKandle(int levelref, String s, String b, String pk){
+	// 	StringBuilder str = new StringBuilder();
+	// 		str.append(LogMessages.PACKING_LEVEL.toString())
+	// 		   .append(levelref)
+	// 		   .append("\nSmallest Kandle: ")
+	// 		   .append(s.toString())
+	// 		   .append("\nBiggest Kandle : ")
+	// 		   .append(b.toString())
+	// 		   .append(LogMessages.PACKED_ON.toString())
+	// 		   .append(pk.toString());
+
+	// 	publishLog(str.toString());
+	// }
 }

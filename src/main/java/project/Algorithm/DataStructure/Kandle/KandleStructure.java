@@ -112,6 +112,9 @@ public class KandleStructure<E extends Comparable<E>>{
         }
 	}
 
+
+
+
 	private static class KandlePackage extends Kandle{
 		Kandle smallest;
 		Kandle biggest;
@@ -134,14 +137,54 @@ public class KandleStructure<E extends Comparable<E>>{
             this.next = next;
         }
 
-        public Kandle smallest(){
+
+        /*
+         * -2 if is a kandle comparing with a package 
+         * -1 smallest != value 
+         *  0 if they are equals
+         *  1 biggest != value
+         *  2 biggest and smallest != value 
+         */
+        public int compareTo(KandlePackage compare){
+        int result = 0;
+
+            if(smallestKandle().compareTo(compare.smallestKandle()) == 0 )
+                result = -1;
+
+            if(biggestKandle().compareTo(compare.biggestKandle()) == 0 )
+                if(result < 0)
+                    result = 2;
+                else
+                    result = 1;
+
+            return result;
+        }
+
+
+
+        @Override
+        public String smallestToString(){
         	Kandle k = smallest;
         	while(k instanceof KandlePackage)
         		k = (KandlePackage) k.smallest;
-        	return k;
+        	return k.smallestToString();
         }
 
-        public Kandle biggest(){
+        @Override
+        public String biggestToString(){
+            Kandle k = biggest;
+            while(k instanceof KandlePackage)
+                k = (KandlePackage) k.biggest;
+            return k.biggestToString();
+        }
+
+        public Kandle smallestKandle(){
+            Kandle k = smallest;
+            while(k instanceof KandlePackage)
+                k = (KandlePackage) k.smallest;
+            return k;
+        }
+        public Kandle biggestKandle(){
             Kandle k = biggest;
             while(k instanceof KandlePackage)
                 k = (KandlePackage) k.biggest;
@@ -150,10 +193,7 @@ public class KandleStructure<E extends Comparable<E>>{
 
         @Override
         public String toString(){
-            Kandle small = this.smallest();
-            Kandle big = this.biggest();
-
-        	return "{" + small.smallestToString() + "P"+level+ big.biggestToString() +"}";
+        	return "{" + smallest.smallestToString() + "P"+level+ biggest.biggestToString() +"}";
         }
 	}
 
@@ -287,14 +327,14 @@ public class KandleStructure<E extends Comparable<E>>{
             return;
             
         }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("Exceptioned");
+            // e.printStackTrace();
+            // System.out.println("Exceptioned");
             references.add(new LinkedList());
             log.referenceListGrowing(level+1);
 
-                flag++;
-                if(flag == 5)
-                    throw e;
+                // flag++;
+                // if(flag == 5)
+                //     throw e;
             
             /*  Call himself with the new reference
              *  linkedlist created. Call passing 
@@ -356,7 +396,7 @@ public class KandleStructure<E extends Comparable<E>>{
         if(nk == null || k == null){
             if(nk instanceof KandlePackage){
                 KandlePackage n = (KandlePackage) nk;
-                if(first == null || first.compareTo(n.smallest()) == 0 ) {
+                if(first == null || first.compareTo(n.smallestKandle()) == 0 ) {
                     first = nk;
                     return;
                 }
