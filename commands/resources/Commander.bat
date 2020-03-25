@@ -6,6 +6,9 @@
 	SET "exportPath=%assetsPath%Annotate_Classes\"
 	SET "srcPath=%root%\src\"
 
+	if NOT exist dir %exportPath% (
+		mkdir %exportPath%
+	)
 	
 	GOTO :findCommands
 

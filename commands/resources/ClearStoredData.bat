@@ -1,7 +1,7 @@
 @ECHO off
 
 	SET "commandPath=%~dp0..\"
-	SET "assetsPath=%commandPath%resources\assets\"
+	SET "assetsPath=%commandPath%resources\assets\router_files\"
 	SET "annotatePath=%assetsPath%Annotate_Classes\"
 	SET "root=%commandPath%..\"
 	SET "binPath=%root%bin"

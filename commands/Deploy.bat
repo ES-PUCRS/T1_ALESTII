@@ -2,7 +2,7 @@
 
 	SET "commandPath=%~dp0"
 	SET "root=%commandPath%.."
-	SET "importPath=%commandPath%\resources\assets"
+	SET "importPath=%commandPath%resources\assets\router_files\"
 	SET "resourcesPath=%commandPath%\resources\"
 	SET "binPath=%root%\bin"
 	cd %binPath%

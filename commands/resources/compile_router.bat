@@ -1,9 +1,14 @@
 @ECHO OFF
 
 	SET "resourcesPath=%~dp0"
-	SET "exportPath=%resourcesPath%assets\"
-	SET "importPath=%exportPath%Annotate_Classes\"
-	SET "srcPath=%exportPath%..\..\..\src\"
+	SET "exportPath=%resourcesPath%assets\router_files\"
+	SET "importPath=%resourcesPath%assets\Annotate_Classes\"
+	SET "srcPath=%resourcesPath%..\..\src\"
+
+	if NOT exist dir %exportPath% (
+		mkdir %exportPath%
+	)
+	
 
 :: Remove existing paths
 ECHO Cleaning existing routes
