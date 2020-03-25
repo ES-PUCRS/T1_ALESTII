@@ -3,7 +3,8 @@
 	SET "resourcesPath=%~dp0"
 	SET "exportPath=%resourcesPath%assets\router_files\"
 	SET "importPath=%resourcesPath%assets\Annotate_Classes\"
-	SET "srcPath=%resourcesPath%..\..\src\"
+	SET "rootPath=%resourcesPath:commands\resources\=%"
+	SET "srcPath=%rootPath%\src\"
 
 	if NOT exist dir %exportPath% (
 		mkdir %exportPath%
@@ -23,15 +24,10 @@ ECHO Searching routes on src...
 	for /f "tokens=*" %%i in ('dir /b /s /a:d "%srcPath%"') do (
 		:: Verify if do exist a .java file on the folder
 			:: Concatenate on the .txt the new path
-		if exist %%i\*.c (
-			@ECHO %%i\*.c>>%exportPath%Compile_c.txt
-		)
 		if exist %%i\*.java (
 			if exist %importPath%Command_IgnoreClass.txt (
 				for /f "tokens=*" %%j in ('dir /b "%%i"') do (
-					for /F "tokens=*" %%l in (%importPath%Command_IgnoreClass.txt) do (
-						CALL :compare %%i %%j %%l
-					)
+					CALL :concat %%i %%j
 				)
 			)
 			if NOT Exist %importPath%Command_IgnoreClass.txt (
@@ -41,21 +37,33 @@ ECHO Searching routes on src...
 			@ECHO %%i
 		)
 	)
+	
+	CALL :compare
+	
 EXIT
 
+:: Remove from Compile_Java.txt every path that appears an ignored class
 :compare
+	for /f "tokens=*" %%l in (%importPath%Command_IgnoreClass.txt) do (
+		ECHO rm file = %%l
+		for /f "tokens=*" %%X in (
+			'findstr /v /e /c:"%%l" "%exportPath%Compile_Java.txt" ^&del "%exportPath%Compile_Java.txt%"'
+		) do (
+			echo %%X>>%exportPath%Compile_Java.txt
+		)
+	)
+
+	GOTO :EOF
+
+
+:: Called on loop to concatenate all the files path
+:concat
 	SET stringfy=%1\%2
 	SET stringfy=%stringfy:*src=src%
 
-	if %stringfy% EQU %3 (
-		ECHO %stringfy%
-		ECHO Tu não.
-		GOTO :EOF
-	)
-
 	ECHO %stringfy% | find ".java" > nul && (
 		@ECHO %1\%2>>%exportPath%Compile_Java.txt
-		ECHO Saved on file as %1\%2 
+		ECHO Saved on file as %1\%2; 
 		GOTO :EOF
 	) || (
 		ECHO Thrown out - %1\%2
