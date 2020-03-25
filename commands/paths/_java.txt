@@ -1,3 +1,0 @@
-C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\src\main\java\project\*.java
-C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\src\main\java\project\Exceptions\*.java
-C:\Users\cleys\OneDrive\Desktop\T1_ALESTII\src\main\java\project\logger\*.java
