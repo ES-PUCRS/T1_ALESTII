@@ -1,5 +1,8 @@
-# Project version
-!manifest.txt
+# Allow files
+	# Project version
+	!manifest.txt
+	# Commands resources and tools
+	!commands/*
 
 # Compiled class file
 *.class
