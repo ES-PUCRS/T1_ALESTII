@@ -1,2 +1,2 @@
-Manifest-Version: 250 
+Manifest-Version: 254 
 Main-Class: src.main.java.project.app 
