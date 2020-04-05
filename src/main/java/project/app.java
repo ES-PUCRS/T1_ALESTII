@@ -1,90 +1,104 @@
 package src.main.java.project;
 
-import src.main.java.project.Algorithm.Datastructure.Kandle.KandleStructure;
+import src.main.java.project.Algorith.DataStructure.TreeMapSpecial;
 import src.main.java.project.Exceptions.ExceptionHandler;
-import src.main.java.project.FileManager.Writer;
 import src.main.java.project.logger.Logger;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Scanner;
+import java.lang.String;
+import java.io.File;
+
+import src.Test.java.project.UnitTest;
 
 public class app {
 
-	public static final boolean printOnTerminal = true;
-	public static Logger log;
+	public static boolean printOnTerminal = true;
+	private static TreeMapSpecial map;
+	private static Logger log;
 
-	private static boolean each = true;
-	private static boolean packing = true;
-	
+	//@Main
 	public static void main(String[] args) {
-		KandleStructure ks = new KandleStructure();
-		Writer fileWriter = Writer.getInstance();
-		log = log.getInstance();
+		log = Logger.getInstance();
+		map = new TreeMapSpecial();
 		setExceptionWay();
+		log.setFile();
 
-		try{
+	        String path = Paths.get("").toAbsolutePath().toString();
+	        path = path.replaceAll("bin", "");
+	        char separator = path.charAt(path.length() - 1);
+	        path += "src" + separator +
+			        "Test" + separator +
+			        "Cases" + separator;
 
-			if(args.length < 2){
-				each = false;
-				packing = false;
-			}else if(args.length < 3){
-				each = Boolean.parseBoolean(args[1]);
-				packing = false;
-			}else if(args.length > 3){
-				System.out.println("Have I said that there were more than three options? Tha fuc boy.");
-				System.exit(1);
-			}else{
+	        try{
+	        	path += args[0]+".txt";
+		        File filepath = new File(path);
+		        Scanner data = new Scanner(filepath);
+		        String[] entry = {};
 
-				if(args[1] == null)
-					each = false;
-				else
-					each = Boolean.parseBoolean(args[1]);
-				
-				packing = Boolean.parseBoolean(args[2]);
-			}
+		        while (data.hasNext()) {
+		        	entry = data.nextLine().split("-");
+		            add(entry[0], entry[1]);
+		        }
 
-			int iterations = Integer.parseInt(args[0]);
-			
-			for(int i = 0; i < iterations; i++){
-				creatPacks(ks, i);
-			}
-
-			if(each == true)
-				System.out.println("\nFinal list:\n" + ks);
-			else
-				System.out.println("Final list:\n" + ks);
-
-			showReferences(ks);
-
-		} catch(Exception e){
-			System.out.println("Can not creat null structure to run once."+
-							   "\nIt does not make even sense."+
-							   "\nAm I a fucking joke to you?"+
-							   "\nRun this again with some value. Moron.");
-			System.exit(1);
-		}
-
+        		data.close();
+	    	}catch(Exception e){
+	    		e.printStackTrace();
+	    		System.out.println("\n\tFile not found");
+	    	}
+    
+		System.out.println("\n\nFinal map:\n"+ map + "\n---------------------------");
 		log.close();
 	}
 
-	private static void creatPacks(KandleStructure ks, int i){
-		i *= 10;
-		ks.add(new Integer(i), new Integer(i+9));
-		if(each == true)
-			System.out.println(ks);
-		if(packing == true)
-			showReferences(ks);
+
+
+	private static void runTests(){
+		String[] init = {"false", "true"};
+		UnitTest.main(init);
 	}
 
-	private static void showReferences(KandleStructure ks){
-		try{
-			int i = 0;
-			while(true){
-				System.out.println("\nPackages on Array("+i+"): " + ks.referenceSize(i));
-				ks.printArrayOn(i);
-				i++;
-			}
-		}catch(Exception e){}
+	private static void add(String key, String value){
+		System.out.println("INSERT >\t" + key + "\t" + value);
+		map.add(key, value);
 	}
 
     private static void setExceptionWay(){
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 	}
 }
+
+
+
+/*
+	135087090=539840832,
+	613234685=1045135809,
+	77865186=481960112,
+	837159809=839258919,
+	851097643=1045135809,
+	860031788=1011116869
+
+* - insert: 163828202, 386942572
+        -163828202 < -793359858
+        -386942572 < -793359858
+        -163828202 < -386942572
+        -386942572 = -386942572
+        -163828202 = -163828202
+        -386942572 > -163828202
+        -163828202 < -793359858
+        -386942572 < -793359858
+        -163828202 < -793359858
+        -386942572 < -793359858
+* - insert: 860031788, 1045135809
+        -860031788 > -793359858
+        -860031788 < -872845434
+        -1045135809 > -163828202
+        -1045135809 > -386942572
+        -793359858 < -1045135809
+        -1045135809 = -1045135809
+        -793359858 > -163828202
+
+
+*/
