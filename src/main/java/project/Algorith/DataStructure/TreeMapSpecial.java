@@ -1,6 +1,7 @@
 package src.main.java.project.Algorith.DataStructure;
 
 import java.util.TreeMap;
+import java.util.Map;
 
 public class TreeMapSpecial{
 	
@@ -15,6 +16,10 @@ public class TreeMapSpecial{
 
 	public void clear(){
 		map.clear();
+	}
+
+	public void putAll(Map<String, String> map){
+		map.putAll(map);
 	}
 	
 

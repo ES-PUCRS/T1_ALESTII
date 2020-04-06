@@ -1,9 +1,21 @@
+//@IgnoreClass
 package src.main.java.project;
 
 import src.main.java.project.Algorith.DataStructure.TreeMapSpecial;
 import src.main.java.project.Exceptions.ExceptionHandler;
 import src.main.java.project.logger.Logger;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import java.util.TreeMap;
+import java.util.HashMap;
+
+import java.util.LinkedHashMap;
+import java.lang.StringBuilder;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Scanner;
@@ -31,31 +43,62 @@ public class app {
 			        "Test" + separator +
 			        "Cases" + separator;
 
-    		String filename = "";
-    		File filepath = null;
-    		Scanner data = null;
-    		String[] entry = {};
-			String pathFix = path;
-
+    		// Map<String, String> mapx = null;
+    		// String[] entry = {};
+	        String   entry = "";
+			String 	 pathFix = path; 
+    		String 	 filename = "";
+    		Scanner  data = null;
+    		File 	 filepath = null;
 	        try{
-	        	for(int i = 0; i <= 12 ;i++){
-	        		if(i < 10){
-	        			filename = "caso0"+i+".txt";
-	        		}else{
-	        			filename = "caso"+i+".txt";
-	        		}
+        			filename = "caso_teste.txt";
+	        		
 	        		log.setFile(filename);
 	        		path = pathFix + filename;
 			        filepath = new File(path);
 			        data = new Scanner(filepath);
-			        
-			        while (data.hasNext()) {
-			        	entry = data.nextLine().split("-");
-			            add(entry[0], entry[1]);
-			        }
+
+			        //while (data.hasNext()) {
+			        	entry = data.nextLine();
+						// List<String> list = Arrays.asList(entry);
+			        	// System.out.println("List ::" + list);
+
+			        	// HashMap<String, String> mapx = (HashMap<String, String>)
+			        	// 		Arrays.asList(entry.split(";")).stream().map(s -> s.split("-"))
+			        	// 		.collect(Collectors.toMap(e -> "adasd", e -> "asd", (e1, e2) -> e1, HashMap::new));
+
+		        		Map<String, String> mapx =
+    					(Map<String, String>) Arrays.asList(entry.split(";"))
+    											.stream()
+		        								.map(s -> s.split("-"))
+		        								.collect(Collectors.toMap(Function.identity(),
+		        														  Function.identity(),
+		        														  (e1, e2) -> e1,
+		        														  TreeMap::new));
+						map.putAll(mapx);
+		        			// (Map<String, String>) Arrays.asList(
+		        			// 		entry.split(";"))
+		        			// 				.stream()
+		        			// 				.map(s -> s.split("-"))
+		        			// 				.collect(Collectors.toMap(e -> e[0], e -> e[1]));
+
+	        			// Map<String, String> mapx = list.stream()
+            // 					.collect(
+            // 						Collectors.toMap(
+	           //  							Function.identity(),
+	           //                      		Function.identity(),
+	           //                      		(e1, e2) -> e1,
+	           //                      		LinkedHashMap::new));
+
+        				System.out.println("map ::" + mapx.keySet());
+			        	// Map<String, String> mapx = Map.of(entry);
+			        	// map.putAll(mapx);
+			        	// entry = entry.split("-");
+			            // add(entry[0], entry[1]);
+			        //}
 	        		data.close();
 					log.close();
-	        	}
+	        	
 	    	}catch(Exception e){
 	    		e.printStackTrace();
 	    		System.out.println("\n\tFile not found");

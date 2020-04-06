@@ -7,7 +7,7 @@ public enum LogMessages {
 	PACKING_LEVEL("Packing on level: "),
 	PACKED_ON("\nThey have being packed into: "),
 
-	CLOSE_LOG("Program runned on "),
+	CLOSE_LOG(" Runned on "),
 	REFERENCE_LIST_GROWING("The reference list got new linkedlist on index: ");
 
 

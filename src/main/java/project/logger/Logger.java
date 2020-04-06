@@ -29,7 +29,7 @@ public class Logger<E>{
 	private static DateTimeFormatter time;
 	private static LocalDateTime beginProg;
 
-	private static final String command = "";
+	private static String FileName = "";
 	private boolean printOnTerminal = app.printOnTerminal;
 
 	private Logger(){
@@ -80,7 +80,8 @@ public class Logger<E>{
         }catch(IOException x){
              System.err.format("Erro de E/S: %s%n", x);
         }
-		
+
+		FileName = "";		
 	}
 	
 	public static Logger getInstance() {
@@ -90,7 +91,7 @@ public class Logger<E>{
     }
 
 
-public void exception(Thread t, Throwable e){
+	public void exception(Thread t, Throwable e){
 		StackTraceElement[] stack = e.getStackTrace();
 		String exception = "THROWN EXCEPTION\n" + e.getClass().getCanonicalName() + "\n";
 		String message = e.getLocalizedMessage();
@@ -136,8 +137,7 @@ public void exception(Thread t, Throwable e){
 		StringBuilder str = new StringBuilder();
 			LocalDateTime now = LocalDateTime.now();
 			Duration duration = Duration.between(beginProg, now);
-
-			str.append(LogMessages.CLOSE_LOG.toString())
+			str.append(FileName + LogMessages.CLOSE_LOG.toString())
 			   .append(duration.toDays())
 			   .append(" Days, ")
 			   .append(duration.toHours())
@@ -152,10 +152,13 @@ public void exception(Thread t, Throwable e){
 			   if(printOnTerminal)
 					System.out.println("\n" + str);
 			
+			beginProg = now;
 		publishLog(str.toString());
 	}
 
-
+	public void setFile(String filename){
+		this.FileName = filename;
+	}
 
 	public void referenceListGrowing(int level){
 		publishLog(LogMessages.REFERENCE_LIST_GROWING.toString() + level);
