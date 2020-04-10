@@ -71,10 +71,8 @@ public class app {
     					(Map<String, String>) Arrays.asList(entry.split(";"))
     											.stream()
 		        								.map(s -> s.split("-"))
-		        								.collect(Collectors.toMap(Function.identity(),
-		        														  Function.identity(),
-		        														  (e1, e2) -> e1,
-		        														  TreeMap::new));
+		        								.collect(Collectors.toMap(e -> e[0],
+		        														  e -> e.length+""));
 						map.putAll(mapx);
 		        			// (Map<String, String>) Arrays.asList(
 		        			// 		entry.split(";"))

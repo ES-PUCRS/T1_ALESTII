@@ -40,18 +40,18 @@ public class TreeMapSpecial{
 
 
 
-	private String util(String key, String value,boolean smallest){
+	private String util(String key, String value, boolean smallest){
 		String i, f;
 
 		if(!map.containsKey(key)){
 			i = (String) map.lowerKey(key);
+	   		if(i == null){
+				i = (String) map.higherKey(key);
+	   		}
 		} else {
 			i = key;
 		}
 
-   		if(i == null){
-			i = (String) map.higherKey(key);
-   		}
 
 	   	if(i != null){
 	   		f = (String) map.get(i);	   	
