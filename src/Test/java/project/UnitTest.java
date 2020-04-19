@@ -2,6 +2,7 @@ package src.Test.java.project;
 
 import src.Test.java.project.Algorith.DataStructure.TreeMapSpecial_Test;
 import src.main.java.project.Algorith.DataStructure.TreeMapSpecial;
+import src.main.java.project.logger.Logger;
 import java.io.PrintWriter;
 import java.io.Console;
 
@@ -9,17 +10,17 @@ public class UnitTest{
 
 	private static boolean returnPass;
 	private static boolean returnFail;
+	private static Logger log;
 
 	public static void main(String args[]){
+		log = Logger.getInstance();
 
 		returnPass = Boolean.parseBoolean(args[0]);
 		returnFail = Boolean.parseBoolean(args[1]);
 
-		System.out.println("-------------- Running tests --------------\n");
+		TreeMapSpecial_Test.runTests();
 
-			TreeMapSpecial_Test.runTests();
-
-		System.out.println("\n--------------- End tests -----------------\n\n");
+		log.FinishUnitTest();
 	}
 
 
@@ -54,17 +55,17 @@ public class UnitTest{
 
 		if(!mapStr.equals("{}")){
 			if(returnFail){
-				System.out.println(ret + "FAIL");
+				log.UnitTest(ret + "FAIL");
 			} else{
-				System.out.println(methodName + "FAIL");
+				log.UnitTest(methodName + "FAIL");
 			}
 			return true;
 		}
 
 		if(returnPass){
-			System.out.println(ret + "OK");
+			log.UnitTest(ret + "OK");
 		} else{
-			System.out.println(methodName + "OK");
+			log.UnitTest(methodName + "OK");
 		}
 		return false;
 	}

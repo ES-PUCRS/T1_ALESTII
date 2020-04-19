@@ -49,7 +49,7 @@ public class TreeMapSpecial_Test{
 		map.clear();
 
 		//KNOWLEDGE BASE
-		// NULL
+		// NULL MAP
 
 		//TEST PARAMETERS
 		String 	 methodName 	= "firstInsertion";

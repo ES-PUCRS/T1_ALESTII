@@ -24,6 +24,8 @@ public class app {
 		map = new TreeMapSpecial();
 		setExceptionWay();
 
+		runTests();
+
 	        String path = Paths.get("").toAbsolutePath().toString();
 	        path = path.replaceAll("bin", "");
 	        char separator = path.charAt(path.length() - 1);
@@ -38,13 +40,13 @@ public class app {
 			String pathFix = path;
 
 	        try{
-	        	for(int i = 0; i <= 12 ;i++){
+	        	for(int i = 0; i <= 4 ;i++){
 	        		if(i < 10){
 	        			filename = "caso0"+i+".txt";
 	        		}else{
 	        			filename = "caso"+i+".txt";
 	        		}
-	        		log.setFile(filename);
+	        		log.initFile(filename);
 	        		path = pathFix + filename;
 			        filepath = new File(path);
 			        data = new Scanner(filepath);
@@ -54,14 +56,13 @@ public class app {
 			            add(entry[0], entry[1]);
 			        }
 	        		data.close();
-					log.close();
+					log.close(map.toString(), map.size());
+					map.clear();
 	        	}
 	    	}catch(Exception e){
 	    		e.printStackTrace();
 	    		System.out.println("\n\tFile not found");
 	    	}
-    
-		System.out.println("\n\nFinal map:\n"+ map + "\n---------------------------");
 	}
 
 
