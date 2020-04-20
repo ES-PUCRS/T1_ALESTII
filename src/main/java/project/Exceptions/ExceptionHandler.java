@@ -9,6 +9,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	@Override
 	public void uncaughtException(Thread t, Throwable e){
 		StackTraceElement[] a = e.getStackTrace();
+		System.out.println();
 		e.printStackTrace();
 		System.out.println("\nDeu ruim, meu consagrado!\n"+ e.getClass().getCanonicalName() +
 						   "\n"+ a[0].toString() + "\n" + a[a.length-1].toString() + "\n");

@@ -1,87 +1,106 @@
 package src.main.java.project;
 
-import src.main.java.project.Algorithm.Datastructure.Kandle.KandleStructure;
+import src.main.java.project.Algorith.DataStructure.TreeMapSpecial;
 import src.main.java.project.Exceptions.ExceptionHandler;
-import src.main.java.project.FileManager.Writer;
 import src.main.java.project.logger.Logger;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Scanner;
+import java.lang.String;
+import java.io.File;
+
+import src.Test.java.project.UnitTest;
 
 public class app {
 
-	public static final boolean printOnTerminal = true;
-	public static Logger log;
+	public static boolean printOnTerminal = true;
+	private static TreeMapSpecial map;
+	private static String returnPass;
+	private static String returnFail;
+	private static Logger log;
 
-	private static boolean each = true;
-	private static boolean packing = true;
-	
+	//@Main
 	public static void main(String[] args) {
-		KandleStructure ks = new KandleStructure();
-		Writer fileWriter = Writer.getInstance();
-		log = log.getInstance();
+			int runThroughFiles = -1;
+
+			try{
+				
+				runThroughFiles = Integer.parseInt(args[0]);
+				
+				if(args.length > 2)
+					returnFail = args[2];
+				else
+					returnFail = "true";
+				
+				if (args.length > 1)
+					returnPass = args[1];
+				else
+					returnPass = "false";
+
+			}catch(Exception e){
+				e.printStackTrace();
+				System.out.println("Set a valid case number");
+				System.exit(0);
+			}
+
+
+		log = Logger.getInstance();
+		map = new TreeMapSpecial();
 		setExceptionWay();
 
-		try{
+		runTests();
 
-			if(args.length < 2){
-				each = false;
-				packing = false;
-			}else if(args.length < 3){
-				each = Boolean.parseBoolean(args[1]);
-				packing = false;
-			}else if(args.length > 3){
-				System.out.println("Have I said that there were more than three options? Tha fuc boy.");
-				System.exit(1);
-			}else{
+	        String path = Paths.get("").toAbsolutePath().toString();
+	        path = path.replaceAll("bin", "");
+	        char separator = path.charAt(path.length() - 1);
+	        path += "src" + separator +
+			        "Test" + separator +
+			        "Cases" + separator;
 
-				if(args[1] == null)
-					each = false;
-				else
-					each = Boolean.parseBoolean(args[1]);
-				
-				packing = Boolean.parseBoolean(args[2]);
-			}
+    		String filename = "";
+    		File filepath = null;
+    		Scanner data = null;
+    		String[] entry = {};
+			String pathFix = path;
 
-			int iterations = Integer.parseInt(args[0]);
-			
-			for(int i = 0; i < iterations; i++){
-				creatPacks(ks, i);
-			}
-
-			if(each == true)
-				System.out.println("\nFinal list:\n" + ks);
-			else
-				System.out.println("Final list:\n" + ks);
-
-			showReferences(ks);
-
-		} catch(Exception e){
-			System.out.println("Can not creat null structure to run once."+
-							   "\nIt does not make even sense."+
-							   "\nAm I a fucking joke to you?"+
-							   "\nRun this again with some value. Moron.");
-			System.exit(1);
-		}
-
-		log.close();
+	        try{
+	        	for(int i = 0; i <= runThroughFiles ;i++){
+	        		if(i < 10){
+	        			filename = "caso0"+i+".txt";
+	        		}else{
+	        			filename = "caso"+i+".txt";
+	        		}
+	        		log.initFile(filename);
+	        		path = pathFix + filename;
+			        filepath = new File(path);
+			        data = new Scanner(filepath);
+			        
+			        while (data.hasNext()) {
+			        	entry = data.nextLine().split("-");
+			            add(entry[0], entry[1]);
+			        }
+	        		data.close();
+					log.close(map.toString(), map.size());
+					map.clear();
+	        	}
+	    	}catch(Exception e){
+	    		e.printStackTrace();
+	    		System.out.println("\n\tFile not found");
+	    	}
 	}
 
-	private static void creatPacks(KandleStructure ks, int i){
-		i *= 10;
-		ks.add(new Integer(i), new Integer(i+9));
-		if(each == true)
-			System.out.println(ks);
-		if(packing == true)
-			showReferences(ks);
+
+
+	private static void runTests(){
+		UnitTest.main(
+			new String[] {returnPass, returnFail}
+		);
 	}
 
-	private static void showReferences(KandleStructure ks){
-		try{
-			int i = 0;
-			while(true){
-				System.out.println("\nPackages on Array("+i+"): " + ks.referenceSize(i));
-				ks.printArrayOn(i);
-				i++;
-			}
-		}catch(Exception e){}
+	private static void add(String key, String value){
+		System.out.println("INSERT >\t" + key + "\t" + value);
+		map.add(key, value);
 	}
 
     private static void setExceptionWay(){

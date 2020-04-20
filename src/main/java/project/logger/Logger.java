@@ -21,15 +21,21 @@ import java.time.Duration;
 
 import src.main.resources.LogMessages;
 
+import java.util.TreeMap;
+import java.util.Map;
+
 public class Logger<E>{
 	private static PrintWriter logDataWriter;
+	public static boolean runningFile;
 	private static Path logDateTime;
 	private static Logger instance;
 
 	private static DateTimeFormatter time;
 	private static LocalDateTime beginProg;
+	private static StringBuilder unitTests;
+	public static LocalDateTime now;
+	public static TreeMap<Integer, Integer> map;
 
-	private static final String command = "";
 	private boolean printOnTerminal = app.printOnTerminal;
 
 	private Logger(){
@@ -37,7 +43,7 @@ public class Logger<E>{
 		time = DateTimeFormatter.ofPattern("HH:mm:ss:SSS' - '"); 
         
         String filePath = Paths.get("").toAbsolutePath().toString();
-        LocalDateTime now = LocalDateTime.now();
+        now = LocalDateTime.now();
 		beginProg = now;
 
         filePath += "\\SavedLogs\\" + "LoggerRuntime_" + dt.format(now) + ".txt";   
@@ -80,7 +86,9 @@ public class Logger<E>{
         }catch(IOException x){
              System.err.format("Erro de E/S: %s%n", x);
         }
-		
+        runningFile = false;
+        map = new TreeMap();
+		unitTests = new StringBuilder();	
 	}
 	
 	public static Logger getInstance() {
@@ -90,7 +98,7 @@ public class Logger<E>{
     }
 
 
-public void exception(Thread t, Throwable e){
+	public void exception(Thread t, Throwable e){
 		StackTraceElement[] stack = e.getStackTrace();
 		String exception = "THROWN EXCEPTION\n" + e.getClass().getCanonicalName() + "\n";
 		String message = e.getLocalizedMessage();
@@ -132,88 +140,73 @@ public void exception(Thread t, Throwable e){
         logDataWriter.close();
 	}
 
-	public void close(){
+	public void close(String map, int mapSize){
 		StringBuilder str = new StringBuilder();
-			LocalDateTime now = LocalDateTime.now();
+			now = LocalDateTime.now();
 			Duration duration = Duration.between(beginProg, now);
+
+			for(Map.Entry<Integer,Integer> entry : this.map.entrySet()) {
+			  Integer key = entry.getKey();
+			  Integer value = entry.getValue();
+			  str.append(key + LogMessages.GAPS_REMOVAL.toString() + value + " times;\n");
+			}
 
 			str.append(LogMessages.CLOSE_LOG.toString())
 			   .append(duration.toDays())
 			   .append(" Days, ")
-			   .append(duration.toHours())
+			   .append(duration.toHours()%60)
 			   .append(" hours, ")
-			   .append(duration.toMinutes())
+			   .append(duration.toMinutes()%60)
 			   .append(" Minutes, ")
-			   .append(duration.toSeconds())
+			   .append(duration.toSeconds()%60)
 			   .append(" Seconds, ")
-			   .append(duration.toMillis())
-			   .append(" Milli. ");
+			   .append(duration.toMillis()%1000)
+			   .append(" Milli.\n")
+			   .append("Final Map contains " + mapSize + " objects\n")
+			   .append("Final Map result: ")
+			   .append(map)
+			   .append("\n");
 			   
 			   if(printOnTerminal)
 					System.out.println("\n" + str);
 			
+			this.map.clear();
+			runningFile = false;
 		publishLog(str.toString());
 	}
 
+	public void deletedGaps(int gaps){
+		if(runningFile)
+			if(map.containsKey(gaps))
+				map.put(gaps, map.get(gaps).intValue() + 1);
+			else
+				map.put(gaps, 1);
+	}
 
+	public void initFile(String filename){
+		beginProg = LocalDateTime.now();
+		runningFile = true;
+		publishLog(LogMessages.INIT_RUN.toString() + filename);
+	}
 
 	public void referenceListGrowing(int level){
 		publishLog(LogMessages.REFERENCE_LIST_GROWING.toString() + level);
 	}
 
-	public void createNewKandle(E s, E b, String k, boolean a){
-		StringBuilder str = new StringBuilder();
-			 str.append("Created new Kandle [")
-				.append(s.toString())
-				.append(" - ")
-				.append(b.toString())
-				.append("]");
 
-			if(a == true)
-				str.append(" after ");
-			else
-				str.append(" before ");
+	public void UnitTest(String result){
+		unitTests.append(result + "\n");
+	}
+	public void FinishUnitTest(){
+		StringBuilder str = new StringBuilder();
+			 str.append("-------------- Running tests --------------\n")
+				.append(unitTests.toString())
+				.append("\n--------------- End tests -----------------\n\n");
 				
-			str.append(k.toString());
+				if(printOnTerminal)
+					System.out.println(str.toString());
+
+			unitTests = null;
 		publishLog(str.toString());
 	}
-	
-	public void createNewKandle(E s, E b, String a){
-		StringBuilder str = new StringBuilder();
-			 str.append("Created Kandle [")
-				.append(s.toString())
-				.append(" - ")
-				.append(b.toString())
-				.append("] ")
-				.append(a);
-		publishLog(str.toString());
-	}
-
-	public void packingKandle(int levelref, String s, String b, String pk){
-		StringBuilder str = new StringBuilder();
-			str.append(LogMessages.PACKING_LEVEL.toString())
-			   .append(levelref)
-			   .append("\nSmallest Kandle: ")
-			   .append(s.toString())
-			   .append("\nBiggest Kandle : ")
-			   .append(b.toString())
-			   .append(LogMessages.PACKED_ON.toString())
-			   .append(pk.toString());
-
-		publishLog(str.toString());
-	}
-	
-	// public void packingKandle(int levelref, String s, String b, String pk){
-	// 	StringBuilder str = new StringBuilder();
-	// 		str.append(LogMessages.PACKING_LEVEL.toString())
-	// 		   .append(levelref)
-	// 		   .append("\nSmallest Kandle: ")
-	// 		   .append(s.toString())
-	// 		   .append("\nBiggest Kandle : ")
-	// 		   .append(b.toString())
-	// 		   .append(LogMessages.PACKED_ON.toString())
-	// 		   .append(pk.toString());
-
-	// 	publishLog(str.toString());
-	// }
 }
