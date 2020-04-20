@@ -16,10 +16,35 @@ public class app {
 
 	public static boolean printOnTerminal = true;
 	private static TreeMapSpecial map;
+	private static String returnPass;
+	private static String returnFail;
 	private static Logger log;
 
 	//@Main
 	public static void main(String[] args) {
+			int runThroughFiles = -1;
+
+			try{
+				
+				runThroughFiles = Integer.parseInt(args[0]);
+				
+				if(args.length > 2)
+					returnFail = args[2];
+				
+				if (args.length > 1){
+					returnPass = args[1];
+				} else {
+					returnPass = "false";
+					returnFail = "true";
+				}
+
+			}catch(Exception e){
+				e.printStackTrace();
+				System.out.println("Set a valid case number");
+				System.exit(0);
+			}
+
+
 		log = Logger.getInstance();
 		map = new TreeMapSpecial();
 		setExceptionWay();
@@ -40,7 +65,7 @@ public class app {
 			String pathFix = path;
 
 	        try{
-	        	for(int i = 0; i <= 4 ;i++){
+	        	for(int i = 0; i <= runThroughFiles ;i++){
 	        		if(i < 10){
 	        			filename = "caso0"+i+".txt";
 	        		}else{
@@ -68,8 +93,9 @@ public class app {
 
 
 	private static void runTests(){
-		String[] init = {"false", "true"};
-		UnitTest.main(init);
+		UnitTest.main(
+			new String[] {returnPass, returnFail}
+		);
 	}
 
 	private static void add(String key, String value){
@@ -81,36 +107,3 @@ public class app {
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 	}
 }
-
-
-
-/*
-	135087090=539840832,
-	613234685=1045135809,
-	77865186=481960112,
-	837159809=839258919,
-	851097643=1045135809,
-	860031788=1011116869
-
-* - insert: 163828202, 386942572
-        -163828202 < -793359858
-        -386942572 < -793359858
-        -163828202 < -386942572
-        -386942572 = -386942572
-        -163828202 = -163828202
-        -386942572 > -163828202
-        -163828202 < -793359858
-        -386942572 < -793359858
-        -163828202 < -793359858
-        -386942572 < -793359858
-* - insert: 860031788, 1045135809
-        -860031788 > -793359858
-        -860031788 < -872845434
-        -1045135809 > -163828202
-        -1045135809 > -386942572
-        -793359858 < -1045135809
-        -1045135809 = -1045135809
-        -793359858 > -163828202
-
-
-*/
