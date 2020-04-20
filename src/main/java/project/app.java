@@ -30,13 +30,13 @@ public class app {
 				
 				if(args.length > 2)
 					returnFail = args[2];
-				
-				if (args.length > 1){
-					returnPass = args[1];
-				} else {
-					returnPass = "false";
+				else
 					returnFail = "true";
-				}
+				
+				if (args.length > 1)
+					returnPass = args[1];
+				else
+					returnPass = "false";
 
 			}catch(Exception e){
 				e.printStackTrace();
